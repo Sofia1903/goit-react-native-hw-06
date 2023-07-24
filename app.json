@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "AwesomeProject",
-    "slug": "reactnativeproject",
+    "name": "react-native-project",
+    "slug": "react-native-project",
+    "jsEngine": "hermes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,26 +15,35 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "packagerOpts": {
+      "sourceExts": [
+        "js",
+        "json",
+        "ts",
+        "tsx",
+        "jsx",
+        "vue"
+      ]
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "jsEngine": "jsc",
+      "package": "com.nmg.reactnativeproject"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-localization"
-    ],
     "extra": {
       "eas": {
-        "projectId": "fb1a78c5-d130-4920-941a-36be4d2f90eb"
+        "projectId": "8c5e6f73-92c0-4daa-84f9-c9591224f9b1"
       }
-    },
-    "owner": "nataliia777"
+    }
   }
 }

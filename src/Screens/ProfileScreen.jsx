@@ -1,121 +1,129 @@
-import { StyleSheet, Text, View, Image, ImageBackground } from 'react-native';
-import imageBg from '../../assets/photo-bg.png';
-import { LocationIcon, CommentOrangeIcon, LikeIcon } from '../../assets/SvgIcons';
-import { selectUser } from '../redux/selectors';
-import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { db } from '../firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
-import { ScrollView } from 'react-native-gesture-handler';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+  ScrollView,
+  Image,
+} from 'react-native';
+import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { Feather, AntDesign } from '@expo/vector-icons';
+
+import posts from '../data/posts';
+import PostCard from '../components/PostCard';
+
+const wallpaper = require('../images/wallpaper.png');
+const avatar = require('../images/avatar.jpg');
 
 export default function ProfileScreen() {
-  const user = useSelector(selectUser);
-  const [posts, setPosts] = useState([]);
-
-  const getPosts = async () => {
-    const data = [];
-    await getDocs(collection(db, 'users', user.uid, 'posts')).then((querySnapshot) => {
-      querySnapshot.docs.forEach((doc) => {
-        data.push({ id: doc.id, ...doc.data() });
-      });
-    });
-    setPosts(data);
-    console.log(data);
-    return data;
-  };
-
-  useEffect(() => {
-    getPosts();
-  }, []);
+  const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
-      <ImageBackground source={imageBg} resizeMode="cover" style={styles.image}>
-        <View style={styles.profile}>
-          <Text style={styles.name}>{user?.displayName}</Text>
-
-          <ScrollView style={{ height: 'auto', flex: 0 }}>
-            {posts &&
-              posts.map((post) => (
-                <View style={styles.post} key={post.id}>
-                  <Image source={{ uri: post.imageUri }} style={styles.postPhoto} />
-                  <Text style={styles.postName}>{post.imageName}</Text>
-                  <View style={styles.postWrapper}>
-                    {CommentOrangeIcon}
-                    <Text style={styles.comment}>Comment</Text>
-                    {LikeIcon}
-                    <Text style={styles.like}>Like</Text>
-                    <View style={styles.location}>
-                      {LocationIcon}
-                      <Text>{post.locationName}</Text>
-                    </View>
-                  </View>
-                </View>
-              ))}
-          </ScrollView>
+    <ImageBackground
+      source={wallpaper}
+      resizeMode="cover"
+      style={styles.imageBackground}
+    >
+      <View style={styles.container}>
+        <View style={styles.photoContainer}>
+          <Image
+            source={avatar}
+            style={{ width: '100%', height: '100%', borderRadius: 16 }}
+          />
+          <TouchableOpacity style={styles.addButton} activeOpacity={0.5}>
+            <AntDesign name="closecircleo" size={24} color="#BDBDBD" />
+          </TouchableOpacity>
         </View>
-      </ImageBackground>
-    </View>
+        <Text style={styles.title}>Natali Romanova</Text>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          activeOpacity={0.5}
+          onPress={() => navigation.navigate('LoginScreen')}
+        >
+          <Feather name="log-out" size={25} color="gray" />
+        </TouchableOpacity>
+
+        <ScrollView
+          style={{ margin: 0, padding: 0 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {posts.map(
+            ({
+              img,
+              description,
+              likes,
+              comments,
+              locationName,
+              geoLocation,
+            }) => {
+              return (
+                <PostCard
+                  key={description}
+                  image={img}
+                  description={description}
+                  likes={likes}
+                  comments={comments}
+                  locationName={locationName}
+                  geoLocation={geoLocation}
+                />
+              );
+            }
+          )}
+        </ScrollView>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,    
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // paddingLeft: 16,
-    // paddingRight: 16,
-  },
-  image: {
-    width: '100%',
-    height: 812,
+  imageBackground: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    width: '100%',
   },
-  profile: {
-    marginTop: 147,
-    backgroundColor: '#fff',
+  containerKeyBoard: {
+    justifyContent: 'flex-end',
+  },
+  container: {
+    width: '100%',
+    height: '80%',
+    backgroundColor: '#ffffff',
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-    minHeight: '80%',
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingHorizontal: 16,
   },
-  name: {
-    marginTop: 92,
-    marginBottom: 33,
+  photoContainer: {
+    top: -60,
+    width: 120,
+    height: 120,
+    backgroundColor: '#F6F6F6',
+    borderRadius: 16,
+    alignSelf: 'center',
+    marginBottom: 40,
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 22,
+    right: 16,
+  },
+  addButton: {
+    marginTop: -40,
+    left: '90%',
+    height: 25,
+    width: 25,
+    pointerEvents: 'auto',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 100,
+  },
+  title: {
+    position: 'absolute',
+    marginTop: 90,
+    alignSelf: 'center',
+    fontFamily: 'Roboto',
     fontSize: 30,
-    fontWeight: 'bold',
     lineHeight: 35,
     textAlign: 'center',
-    letterSpacing: 0.01,
-    color: '#212121',
-  },
-  post: {
-    marginBottom: 32,
-  },
-  postName: {
-    marginBottom: 8,
-    marginTop: 8,
-  },
-  postWrapper: {
-    flexDirection: 'row',
-  },
-  postPhoto: {
-    width: '100%',
-    height: 240,
-    borderRadius: 8,
-    backgroundColor: '#F6F6F6',
-    borderColor: '#E8E8E8',
-    borderWidth: 1,
-  },
-  comment: {
-    marginRight: 24,
-  },
-  location: {
-    marginLeft: 'auto',
-    flexDirection: 'row',
   },
 });

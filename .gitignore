@@ -1,9 +1,7 @@
 node_modules/
+.idea
 .expo/
 dist/
-.env
-.idea
-.vscode
 npm-debug.*
 *.jks
 *.p8

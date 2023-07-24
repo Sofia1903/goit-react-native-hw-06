@@ -1,48 +1,70 @@
-import { StyleSheet, View, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location';
+import { StyleSheet, Dimensions } from 'react-native';
 
-export default function MapScreen({ route }) {
-  const location = route.params ? route.params.location : null;
-  console.log(location);
+const MapScreen = () => {
+  const {
+    params: {
+      params: { geoLocation },
+    },
+  } = useRoute();
+  const [photoLocation, setPhotoLocation] = useState(
+    geoLocation ? geoLocation : null
+  );
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      setPhotoLocation(coords);
+    })();
+  }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.containerFullView}>
       <MapView
-        style={styles.mapStyle}
+        style={styles.mapStyles}
         region={{
-          latitude: location.latitude,
-          longitude: location.longitude,
+          ...photoLocation,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
-          // latitude: 37.78825,
-          // longitude: -122.4324,
-          // latitudeDelta: 0.0922,
-          // longitudeDelta: 0.0421,
         }}
-        mapType="standard"
-        minZoomLevel={15}
-        onMapReady={() => console.log('Map is ready')}
-        // onRegionChange={() => console.log("Region change")}
+        showsUserLocation={true}
       >
-        <Marker
-          title="I am here"
-          coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-          description="Hello"
-        />
+        {photoLocation && (
+          <Marker
+            title="Локація фотографії"
+            coordinate={photoLocation}
+            description="Локація"
+          />
+        )}
       </MapView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
+  containerFullView: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  mapStyle: {
+  mapStyles: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
 });
+
+export default MapScreen;
